@@ -434,6 +434,7 @@ ghostdriver.SessionReqHand = function(session) {
 
     _getScreenshotCommand = function(req, res) {
         var rendering = _protoParent.getSessionCurrWindow.call(this, _session, req).renderBase64("png");
+        console.log("Session '"+ _session.getId() +"' is about to capture screenshot.");
         res.success(_session.getId(), rendering);
     },
 
@@ -452,7 +453,7 @@ ghostdriver.SessionReqHand = function(session) {
         var postObj = JSON.parse(req.post),
             currWindow = _protoParent.getSessionCurrWindow.call(this, _session, req);
 
-        // console.log("Session '"+ _session.getId() +"' is about to load URL: " + postObj.url);
+        console.log("Session '"+ _session.getId() +"' is about to load URL: " + postObj.url);
 
         if (typeof(postObj) === "object" && postObj.url) {
             // Switch to the main frame first

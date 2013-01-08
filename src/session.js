@@ -176,12 +176,19 @@ ghostdriver.Session = function(desiredCapabilities) {
                 onLoadFunc.call(thisPage, "success");
             }
         });
-        this.setOneShotCallback("onLoadFinished", function () {
-            // console.log("onLoadFinished");
-
-            clearTimeout(loadingTimer);
-            thisPage.resetOneShotCallbacks();
-            onLoadFunc.apply(thisPage, arguments);
+        this.setOneShotCallback("onLoadFinished", function (status) {
+            // console.log("onLoadFinished: "+status);
+            if (status === "fail") {
+                pageLoadNotTriggered = false;
+                thisPage.stop(); //< stop the page from loading
+                clearTimeout(loadingTimer);
+                thisPage.resetOneShotCallbacks();
+                onErrorFunc.apply(thisPage, arguments);
+            } else {
+                clearTimeout(loadingTimer);
+                thisPage.resetOneShotCallbacks();
+                onLoadFunc.apply(thisPage, arguments);
+            }
         });
         this.setOneShotCallback("onError", function(message, stack) {
             // console.log("onError: "+message+"\n");

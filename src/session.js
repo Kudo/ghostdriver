@@ -190,6 +190,7 @@ ghostdriver.Session = function(desiredCapabilities) {
                 onLoadFunc.apply(thisPage, arguments);
             }
         });
+        /*
         this.setOneShotCallback("onError", function(message, stack) {
             // console.log("onError: "+message+"\n");
             // stack.forEach(function(item) {
@@ -205,6 +206,7 @@ ghostdriver.Session = function(desiredCapabilities) {
             thisPage.resetOneShotCallbacks();
             onErrorFunc.apply(thisPage, arguments);
         });
+        */
 
         // Starting loadingTimer
         // console.log("Setting 'loadingTimer' to: " + _getPageLoadTimeout());

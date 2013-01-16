@@ -25,6 +25,21 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+(function() {
+    var overrideFuncs = ["log", "error", "info", "warn", "trace"];
+    for (var i = 0, n = overrideFuncs.length; i < n; ++i) {
+        (function(fName) {
+            var fn = console[fName];
+            console[fName] = function() {
+                var time = new Date().toISOString();
+                var newArgs = Array.prototype.slice.call(arguments);
+                newArgs.unshift(time + " [" + fName.toUpperCase() + "] -");
+                fn.apply(this, newArgs);
+            }
+        })(overrideFuncs[i]);
+    }
+})();
+
 // Load dependencies
 // NOTE: We need to provide PhantomJS with the "require" module ASAP. This is a pretty s**t way to load dependencies
 var ghostdriver = {

@@ -41,6 +41,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FileUploadTest extends BaseTest {
     private static final String LOREM_IPSUM_TEXT = "lorem ipsum dolor sit amet";
@@ -58,13 +59,14 @@ public class FileUploadTest extends BaseTest {
         writer.write(FILE_HTML);
         writer.close();
 
-        d.get("http://ci.seleniumhq.org:2310/common/upload.html");
+        // Upload the temp file
+        d.get("http://localhost:2310/common/upload.html");
         d.findElement(By.id("upload")).sendKeys(testFile.getAbsolutePath());
         d.findElement(By.id("go")).submit();
 
         // Uploading files across a network may take a while, even if they're really small.
         // Wait for the loading label to disappear.
-        WebDriverWait wait = new WebDriverWait(d, 30);
+        WebDriverWait wait = new WebDriverWait(d, 10);
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("upload_label")));
 
         d.switchTo().frame("upload_target");
@@ -77,18 +79,33 @@ public class FileUploadTest extends BaseTest {
     }
 
     @Test
+    public void checkFileUploadFailsIfFileDoesNotExist() throws InterruptedException {
+        WebDriver d = getDriver();
+
+        // Trying to upload a file that doesn't exist
+        d.get("http://localhost:2310/common/upload.html");
+        d.findElement(By.id("upload")).sendKeys("file_that_does_not_exist.fake");
+        d.findElement(By.id("go")).submit();
+
+        // Uploading files across a network may take a while, even if they're really small.
+        // Wait for a while and make sure the "upload_label" is still there: means that the file was not uploaded
+        Thread.sleep(1000);
+        assertTrue(d.findElement(By.id("upload_label")).isDisplayed());
+    }
+
+    @Test
     public void checkUploadingTheSameFileMultipleTimes() throws IOException {
         WebDriver d = getDriver();
 
         File file = File.createTempFile("test", "txt");
         file.deleteOnExit();
 
-        d.get("http://ci.seleniumhq.org:2310/common/formPage.html");
+        d.get("http://localhost:2310/common/formPage.html");
         WebElement uploadElement = d.findElement(By.id("upload"));
         uploadElement.sendKeys(file.getAbsolutePath());
         uploadElement.submit();
 
-        d.get("http://ci.seleniumhq.org:2310/common/formPage.html");
+        d.get("http://localhost:2310/common/formPage.html");
         uploadElement = d.findElement(By.id("upload"));
         uploadElement.sendKeys(file.getAbsolutePath());
         uploadElement.submit();
@@ -98,7 +115,7 @@ public class FileUploadTest extends BaseTest {
     public void checkOnChangeEventIsFiredOnFileUpload() throws IOException {
         WebDriver d = getDriver();
 
-        d.get("http://ci.seleniumhq.org:2310/common/formPage.html");
+        d.get("http://localhost:2310/common/formPage.html");
         WebElement uploadElement = d.findElement(By.id("upload"));
         WebElement result = d.findElement(By.id("fileResults"));
         assertEquals("", result.getText());
